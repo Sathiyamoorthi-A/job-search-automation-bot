@@ -1,0 +1,19 @@
+﻿# Environment & Secrets
+.env
+*.env
+
+# SQLite Database
+jobs_history.db
+
+# Reports & Logs
+latest_jobs_report.md
+*.log
+
+# Python Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+env/
+venv/
