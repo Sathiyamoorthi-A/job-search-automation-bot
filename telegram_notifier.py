@@ -1,6 +1,5 @@
 ﻿import requests
 import time
-import urllib.parse
 from config import TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
 
 def send_telegram_message(message_text: str, parse_mode: str = "HTML") -> bool:
@@ -31,9 +30,9 @@ def send_telegram_message(message_text: str, parse_mode: str = "HTML") -> bool:
 def test_telegram_connection() -> bool:
     """Sends a test ping to verify Telegram Bot setup."""
     text = (
-        "🚀 <b>Job Alert Bot Connected!</b>\n\n"
-        "Hello <b>Sathiyamoorthi</b>! Your automated Java Full Stack daily job radar is now active.\n"
-        "You will receive newly posted matching jobs here automatically."
+        "🚀 <b>Job Alert Radar Connected!</b>\n\n"
+        "Hello <b>Sathiyamoorthi</b>! Your multi-shift recruiter radar is active.\n"
+        "Optimal apply timing analytics enabled."
     )
     return send_telegram_message(text)
 
@@ -43,8 +42,28 @@ def escape_html(text: str) -> str:
         return ""
     return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
+def calculate_apply_urgency(time_posted: str) -> tuple:
+    """Analyzes posting age and calculates optimal recruiter application timing status."""
+    tp_lower = time_posted.lower()
+    
+    if any(k in tp_lower for k in ["minute", "min", "just now", "1 hour", "2 hour", "3 hour", "new"]):
+        return (
+            "⚡ <b>GOLDEN APPLY WINDOW</b>",
+            "🔥 <i>Highest Recruiter Response Rate! Apply immediately (First 50 Applicants).</i>"
+        )
+    elif any(k in tp_lower for k in ["hour", "today"]):
+        return (
+            "🟢 <b>FRESH REQUISITION</b>",
+            "🚀 <i>High Recruiter Visibility! Ideal application window.</i>"
+        )
+    else:
+        return (
+            "🟡 <b>ACTIVE ROLE</b>",
+            "💡 <i>Recruiter actively reviewing applications. Apply early.</i>"
+        )
+
 def send_job_alert(job: dict) -> bool:
-    """Sends a formatted job card to Telegram."""
+    """Sends a formatted job card with timing analytics to Telegram."""
     title = escape_html(job.get("title", "Software Developer"))
     company = escape_html(job.get("company", "Company"))
     location = escape_html(job.get("location", "India"))
@@ -52,27 +71,30 @@ def send_job_alert(job: dict) -> bool:
     apply_url = job.get("url", "")
     time_posted = escape_html(job.get("time_posted", "Recently"))
 
+    badge, timing_tip = calculate_apply_urgency(time_posted)
+
     message = (
-        f"🎯 <b>NEW JOB MATCH</b>\n\n"
+        f"{badge}\n\n"
         f"💼 <b>Role:</b> {title}\n"
         f"🏢 <b>Company:</b> {company}\n"
         f"📍 <b>Location:</b> {location}\n"
         f"🕒 <b>Posted:</b> {time_posted}\n"
         f"🌐 <b>Source:</b> {source}\n\n"
-        f"👉 <a href=\"{apply_url}\"><b>[ Click Here to Apply ]</b></a>"
+        f"{timing_tip}\n\n"
+        f"👉 <a href=\"{apply_url}\"><b>[ Click Here to Apply Now ]</b></a>"
     )
     
     success = send_telegram_message(message)
     if success:
-        time.sleep(0.5)  # Telegram API rate limit protection
+        time.sleep(0.5)
     return success
 
-def send_daily_summary(total_found: int, total_sent: int):
+def send_daily_summary(total_found: int, total_sent: int, scan_slot: str = "Daily"):
     """Sends a final summary report after scraping run."""
     text = (
-        f"📊 <b>Daily Job Search Complete</b>\n\n"
-        f"🔍 Total Matching Roles Scanned: <b>{total_found}</b>\n"
-        f"✨ New Alerts Delivered: <b>{total_sent}</b>\n\n"
-        f"<i>Targeting: Java | Spring Boot | React | MySQL (1-3 Yrs Exp)</i>"
+        f"📊 <b>Job Search Scan Complete ({scan_slot})</b>\n\n"
+        f"🔍 Active Matching Roles Scanned: <b>{total_found}</b>\n"
+        f"✨ New Fresh Alerts Delivered: <b>{total_sent}</b>\n\n"
+        f"💡 <i>Tip: Recruiter response rates are highest when applying within 2 hours of posting on Tue–Thu mornings (9:00 AM - 11:30 AM IST).</i>"
     )
     send_telegram_message(text)

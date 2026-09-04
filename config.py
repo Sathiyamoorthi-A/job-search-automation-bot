@@ -28,15 +28,21 @@ TARGET_LOCATIONS = [
     "Bengaluru, Karnataka, India",
     "Chennai, Tamil Nadu, India",
     "Coimbatore, Tamil Nadu, India",
-    "Hyderabad, Telangana, India"
+    "Hyderabad, Telangana, India",
+    "Pune, Maharashtra, India"
 ]
 
-# Time range for listings: 'r86400' = past 24 hours (daily alerts), 'r604800' = past week
+# Time range for listings: 'r86400' = past 24 hours (daily alerts)
 TIME_FILTER = "r86400"
 
 # LinkedIn Experience Filter: 2 = Entry Level (0-2 yrs), 3 = Associate (1-4 yrs)
-# Eliminates Mid-Senior (4), Director (5), Executive (6)
 LINKEDIN_EXP_FILTER = "2,3"
+
+# Strategic Recruiter Scan Schedule (IST Times)
+# 09:15 AM - Morning Recruiter Requisitions (Top priority)
+# 02:15 PM - Post-Lunch HR Job Postings
+# 06:30 PM - End-of-Day & Global US-sync Postings
+OPTIMAL_SCAN_TIMES = ["09:15", "14:15", "18:30"]
 
 # Must include at least one of these primary skills/roles
 PRIMARY_MATCH_KEYWORDS = [
@@ -45,19 +51,14 @@ PRIMARY_MATCH_KEYWORDS = [
 
 # Strict exclusions for Seniority & 5+ Years Experience
 EXCLUDE_TITLE_PATTERNS = [
-    # Seniority & Leadership Titles
     r"\bsenior\b", r"\bsr\.?\b", r"\blead\b", r"\bprincipal\b", r"\barchitect\b",
     r"\bmanager\b", r"\bdirector\b", r"\bstaff\b", r"\bvp\b", r"\bavp\b",
     r"\bvice president\b", r"\bhead\b", r"\btech lead\b", r"\bteam lead\b",
     r"\bsde\s*(?:iii|iv|3|4)\b", r"\bsoftware engineer\s*(?:iii|iv|3|4)\b",
     r"\bdeveloper\s*(?:iii|iv|3|4|iv)\b", r"\bexpert\b",
-
-    # Explicit 5+ / 6+ / 7+ / 8+ / 10+ Years markers
     r"\b[5-9]\+?\s*(?:years?|yrs?|yoe)\b",
     r"\b1[0-9]\+?\s*(?:years?|yrs?|yoe)\b",
     r"\b(?:5|6|7|8|9|10)\s*-\s*(?:8|9|10|12|15)\s*(?:years?|yrs?|yoe)\b",
-
-    # Unrelated tech stacks / roles
     r"\b\.net\b", r"\bc#\b", r"\bgolang\b", r"\bphp\b", r"\bruby\b",
     r"\bios\b", r"\bandroid\b", r"\bflutter\b", r"\bdata engineer\b",
     r"\bmachine learning\b", r"\bml engineer\b", r"\baiml\b",
