@@ -30,9 +30,9 @@ def send_telegram_message(message_text: str, parse_mode: str = "HTML") -> bool:
 def test_telegram_connection() -> bool:
     """Sends a test ping to verify Telegram Bot setup."""
     text = (
-        "🚀 <b>Job Alert Radar Connected!</b>\n\n"
-        "Hello <b>Sathiyamoorthi</b>! Your multi-shift recruiter radar is active.\n"
-        "Optimal apply timing analytics enabled."
+        "🚀 <b>Direct HR Job Radar Connected!</b>\n\n"
+        "Hello <b>Sathiyamoorthi</b>! Filtered for <b>Direct Corporate HR Postings</b>.\n"
+        "Third-party staffing agency reposts are filtered out."
     )
     return send_telegram_message(text)
 
@@ -48,30 +48,35 @@ def calculate_apply_urgency(time_posted: str) -> tuple:
     
     if any(k in tp_lower for k in ["minute", "min", "just now", "1 hour", "2 hour", "3 hour", "new"]):
         return (
-            "⚡ <b>GOLDEN APPLY WINDOW</b>",
-            "🔥 <i>Highest Recruiter Response Rate! Apply immediately (First 50 Applicants).</i>"
+            "⚡ <b>GOLDEN APPLY WINDOW (DIRECT HR)</b>",
+            "🔥 <i>Apply immediately to the direct hiring team before ATS volume builds up!</i>"
         )
     elif any(k in tp_lower for k in ["hour", "today"]):
         return (
-            "🟢 <b>FRESH REQUISITION</b>",
-            "🚀 <i>High Recruiter Visibility! Ideal application window.</i>"
+            "🟢 <b>FRESH DIRECT REQUISITION</b>",
+            "🚀 <i>Direct corporate posting! High recruiter visibility window.</i>"
         )
     else:
         return (
-            "🟡 <b>ACTIVE ROLE</b>",
-            "💡 <i>Recruiter actively reviewing applications. Apply early.</i>"
+            "🏢 <b>DIRECT COMPANY POSTING</b>",
+            "💡 <i>Direct company career portal requisition.</i>"
         )
 
 def send_job_alert(job: dict) -> bool:
-    """Sends a formatted job card with timing analytics to Telegram."""
+    """Sends a formatted job card with direct HR portal badge to Telegram."""
     title = escape_html(job.get("title", "Software Developer"))
     company = escape_html(job.get("company", "Company"))
     location = escape_html(job.get("location", "India"))
-    source = escape_html(job.get("source", "LinkedIn"))
+    source = escape_html(job.get("source", "Direct Career Portal"))
     apply_url = job.get("url", "")
     time_posted = escape_html(job.get("time_posted", "Recently"))
+    hr_email = escape_html(job.get("hr_email", ""))
+    is_direct_ats = job.get("is_direct_ats", False)
 
     badge, timing_tip = calculate_apply_urgency(time_posted)
+
+    ats_badge = "🌐 <b>Direct ATS Career Portal (Greenhouse/Lever/Workday/Ashby)</b>\n" if is_direct_ats else ""
+    email_section = f"\n📧 <b>Direct HR Email:</b> <a href=\"mailto:{hr_email}\"><code>{hr_email}</code></a>\n" if hr_email else ""
 
     message = (
         f"{badge}\n\n"
@@ -79,9 +84,11 @@ def send_job_alert(job: dict) -> bool:
         f"🏢 <b>Company:</b> {company}\n"
         f"📍 <b>Location:</b> {location}\n"
         f"🕒 <b>Posted:</b> {time_posted}\n"
-        f"🌐 <b>Source:</b> {source}\n\n"
+        f"🌐 <b>Source:</b> {source}\n"
+        f"{ats_badge}"
+        f"{email_section}\n"
         f"{timing_tip}\n\n"
-        f"👉 <a href=\"{apply_url}\"><b>[ Click Here to Apply Now ]</b></a>"
+        f"👉 <a href=\"{apply_url}\"><b>[ Apply Directly on Company Portal ]</b></a>"
     )
     
     success = send_telegram_message(message)
@@ -92,9 +99,9 @@ def send_job_alert(job: dict) -> bool:
 def send_daily_summary(total_found: int, total_sent: int, scan_slot: str = "Daily"):
     """Sends a final summary report after scraping run."""
     text = (
-        f"📊 <b>Job Search Scan Complete ({scan_slot})</b>\n\n"
-        f"🔍 Active Matching Roles Scanned: <b>{total_found}</b>\n"
-        f"✨ New Fresh Alerts Delivered: <b>{total_sent}</b>\n\n"
-        f"💡 <i>Tip: Recruiter response rates are highest when applying within 2 hours of posting on Tue–Thu mornings (9:00 AM - 11:30 AM IST).</i>"
+        f"📊 <b>Direct HR Job Scan Complete ({scan_slot})</b>\n\n"
+        f"🏢 Direct Company Openings Scanned: <b>{total_found}</b>\n"
+        f"✨ New Direct HR Alerts Delivered: <b>{total_sent}</b>\n\n"
+        f"🛡️ <i>Note: All 3rd-party staffing agency reposts & ghost listings are automatically filtered out.</i>"
     )
     send_telegram_message(text)
